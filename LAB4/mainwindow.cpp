@@ -1,3 +1,4 @@
+//зубович самый лучший
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
