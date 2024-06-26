@@ -25,6 +25,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void button_color_change();
+    void Menu_connect();
 
 private slots:
     void on_ChangeColorButton_clicked();
@@ -42,13 +43,14 @@ private slots:
 
 
 
-    void on_Savebutton_clicked();
+    void Save();
 
-    void on_Loadbutton_clicked();
+    void Load();
 
-    void on_Updatebutton_clicked();
+    void Update();
 
-    void on_Helpbutton_clicked();
+    void Help();
+
 
 private:
     Ui::MainWindow *ui;

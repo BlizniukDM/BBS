@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     pen.setColor(Qt::black);
     pen.setWidth(2);
     button_color_change();
+    Menu_connect();
 }
 
 MainWindow::~MainWindow()
@@ -80,28 +81,8 @@ void MainWindow::on_BoldPenButton_clicked()
     pen.setWidth(4);
 }
 
-void MainWindow::button_color_change()
-{
-    ui->ChangeColorButton->setStyleSheet("background-color: grey; color: black");
-    ui->ChangeColorButton_2->setStyleSheet("background-color: grey; color: black");
-    ui->ChangeColorButton_3->setStyleSheet("background-color: grey; color: black");
-    ui->ChangeColorButton_4->setStyleSheet("background-color: grey; color: black");
-    ui->BoldPenButton->setStyleSheet("background-color: grey; color: black");\
-    ui->DefaultPenButton->setStyleSheet("background-color: grey; color: black");
 
-
-    ui->Savebutton->setStyleSheet("background-color: grey; color: black");
-    ui->Loadbutton->setStyleSheet("background-color: grey; color: black");
-    ui->Updatebutton->setStyleSheet("background-color: red; color: white");
-    ui->Helpbutton->setStyleSheet("background-color: green; color: white");
-}
-
-
-
-
-
-
-void MainWindow::on_Savebutton_clicked()
+void MainWindow::Save()
 {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), "", tr("PNG Files (*.png);;JPEG Files (*.jpg *.jpeg)"));
 
@@ -116,7 +97,7 @@ void MainWindow::on_Savebutton_clicked()
 }
 
 
-void MainWindow::on_Loadbutton_clicked()
+void MainWindow::Load()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("PNG Files (*.png);;JPEG Files (*.jpg *.jpeg)"));
 
@@ -133,20 +114,44 @@ void MainWindow::on_Loadbutton_clicked()
 }
 
 
-void MainWindow::on_Updatebutton_clicked()
+void MainWindow::Update()
 {
     image.fill(Qt::white);
     update();
 }
 
 
-void MainWindow::on_Helpbutton_clicked()
+void MainWindow::Help()
 {
     QMessageBox::information(this, tr("Help"),
                              tr("ЛКМ - рисуем\n"
-                                "Кнопка UPDATE - стирает всё\n"
+                                "Кнопка UPDATE и Кнопка esc - стирает всё\n"
                                 "Кнопка SAVE - сохраняет вашу работу\n"
                                 "Кнопка LOAD - загружает работу на экран\n"
                                 "Кнопки RED, BLUE, GREEN, BLACK - Кнопки изменения цвета"));
 }
+
+
+void MainWindow::button_color_change()
+{
+    ui->ChangeColorButton->setStyleSheet("background-color: grey; color: black");
+    ui->ChangeColorButton_2->setStyleSheet("background-color: grey; color: black");
+    ui->ChangeColorButton_3->setStyleSheet("background-color: grey; color: black");
+    ui->ChangeColorButton_4->setStyleSheet("background-color: grey; color: black");
+    ui->BoldPenButton->setStyleSheet("background-color: grey; color: black");\
+    ui->DefaultPenButton->setStyleSheet("background-color: grey; color: black");
+    ui->menubar->setStyleSheet("background-color: grey; color: black");
+}
+
+
+void MainWindow::Menu_connect()
+{
+    connect(ui->actionUPDATE,&QAction::triggered, this, &MainWindow::Update);
+    connect(ui->actionHELP,&QAction::triggered, this, &MainWindow::Help);
+    connect(ui->actionSAVE_2,&QAction::triggered, this, &MainWindow::Save);
+    connect(ui->actionLOAD_2,&QAction::triggered, this, &MainWindow::Load);
+
+}
+
+
 
