@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
     button_color_change();
     Menu_connect();
 }
-
 MainWindow::~MainWindow()
 {
     delete ui;
