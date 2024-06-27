@@ -32,6 +32,7 @@ protected:
     void Menu_connect();
     void logTime(const QString &message, const QDateTime &time);
     void displayStatistics();
+    void parseLogFile(const QString &logContent, QString &firstLaunch, QString &lastLaunch, QString &longestDuration);
 
 private slots:
     void on_ChangeColorButton_clicked();

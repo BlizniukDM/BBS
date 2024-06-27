@@ -192,5 +192,52 @@ void MainWindow::displayStatistics()
     QTextStream in(&file);
     QString logContent = in.readAll();
 
-    QMessageBox::information(this, tr("Statistics"), logContent);
+    QString firstLaunch;
+    QString lastLaunch;
+    QString longestDuration;
+    parseLogFile(logContent, firstLaunch, lastLaunch, longestDuration);
+
+    QString statistics = "Statistics:\n" + logContent +
+                         "\n\nFirst Launch:\n" + firstLaunch +
+                         "\n\nLast Launch:\n" + lastLaunch +
+                         "\n\nLongest Duration:\n" + longestDuration;
+
+    QMessageBox::information(this, tr("Statistics"), statistics);
+    QApplication::quit();
 }
+
+void MainWindow::parseLogFile(const QString &logContent, QString &firstLaunch, QString &lastLaunch, QString &longestDuration)
+{
+    QStringList lines = logContent.split('\n');
+    QDateTime firstStartTime, lastStartTime, longestStartTime;
+    qint64 maxDuration = 0;
+
+    for (int i = 0; i < lines.size(); ++i) {
+        if (lines[i].startsWith("Program start time: ")) {
+            QDateTime startTime = QDateTime::fromString(lines[i].mid(19), "yyyy-MM-dd HH:mm:ss");
+            if (!firstStartTime.isValid() || startTime < firstStartTime) {
+                firstStartTime = startTime;
+                firstLaunch = lines[i];
+            }
+            lastStartTime = startTime;
+            lastLaunch = lines[i];
+        } else if (lines[i].startsWith("Program end time: ")) {
+            QDateTime endTime = QDateTime::fromString(lines[i].mid(17), "yyyy-MM-dd HH:mm:ss");
+            qint64 duration = firstStartTime.msecsTo(endTime);
+            if (duration > maxDuration) {
+                maxDuration = duration;
+                longestStartTime = firstStartTime;
+                longestDuration = "Program start time: " + longestStartTime.toString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                                  "Program end time: " + endTime.toString("yyyy-MM-dd HH:mm:ss") + "\n" +
+                                  "Duration: " + QTime::fromMSecsSinceStartOfDay(maxDuration).toString("HH:mm:ss");
+            }
+        }
+    }
+
+    if (!lastLaunch.isEmpty()) {
+        lastLaunch += "\n" + lines.last();
+    }
+}
+
+
+
