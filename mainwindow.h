@@ -32,7 +32,9 @@ protected:
     void Menu_connect();
     void logTime(const QString &message, const QDateTime &time);
     void displayStatistics();
-    void parseLogFile(const QString &logContent, QString &firstLaunch, QString &lastLaunch, QString &longestDuration);
+    void saveFirstLaunch();
+    void saveLastLaunch();
+    void saveLongestLaunch();
 
 private slots:
     void on_ChangeColorButton_clicked();
@@ -70,6 +72,9 @@ private:
     bool drawing;
     QPen pen;
     QDateTime startTime;
+    QString readFirstLaunch();
+    QString readLastLaunch();
+    QString readLongestLaunch();
 };
 
 #endif // MAINWINDOW_H

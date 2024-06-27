@@ -20,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     startTime = QDateTime::currentDateTime();
     logTime("Program start time: ", startTime);
+
+    if (readFirstLaunch().isEmpty()) {
+        saveFirstLaunch();
+    }
+    saveLastLaunch();
 }
 MainWindow::~MainWindow()
 {
@@ -159,7 +164,7 @@ void MainWindow::Menu_connect()
 
 void MainWindow::logTime(const QString &message, const QDateTime &time)
 {
-    QFile file("log.txt");
+    QFile file("logss.txt");
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
         out << message << time.toString("yyyy-MM-dd HH:mm:ss") << "\n";
@@ -180,10 +185,47 @@ void MainWindow::on_Testbutton_clicked()
         out << "Duration: " << QTime::fromMSecsSinceStartOfDay(duration).toString("HH:mm:ss") << "\n";
     }
 
+    saveLongestLaunch();
     displayStatistics();
 }
 
 void MainWindow::displayStatistics()
+{
+    QString firstLaunch = readFirstLaunch();
+    QString lastLaunch = readLastLaunch();
+    QString longestLaunch = readLongestLaunch();
+
+    QString statistics = QString("Statistics:\n\n"
+                                 "First Launch:\n%1\n\n"
+                                 "Last Launch:\n%2\n\n"
+                                 "Longest Duration:\n%3")
+                             .arg(firstLaunch)
+                             .arg(lastLaunch)
+                             .arg(longestLaunch);
+
+    QMessageBox::information(this, tr("Statistics"), statistics);
+    QApplication::quit();
+}
+
+void MainWindow::saveFirstLaunch()
+{
+    QFile file("first_launch.txt");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << "Program start time: " << startTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    }
+}
+
+void MainWindow::saveLastLaunch()
+{
+    QFile file("last_launch.txt");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << "Program start time: " << startTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    }
+}
+
+void MainWindow::saveLongestLaunch()
 {
     QFile file("log.txt");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -191,52 +233,81 @@ void MainWindow::displayStatistics()
 
     QTextStream in(&file);
     QString logContent = in.readAll();
+    file.close();
 
-    QString firstLaunch;
-    QString lastLaunch;
-    QString longestDuration;
-    parseLogFile(logContent, firstLaunch, lastLaunch, longestDuration);
-
-    QString statistics = "Statistics:\n" + logContent +
-                         "\n\nFirst Launch:\n" + firstLaunch +
-                         "\n\nLast Launch:\n" + lastLaunch +
-                         "\n\nLongest Duration:\n" + longestDuration;
-
-    QMessageBox::information(this, tr("Statistics"), statistics);
-    QApplication::quit();
-}
-
-void MainWindow::parseLogFile(const QString &logContent, QString &firstLaunch, QString &lastLaunch, QString &longestDuration)
-{
     QStringList lines = logContent.split('\n');
-    QDateTime firstStartTime, lastStartTime, longestStartTime;
+    QDateTime currentStartTime, currentEndTime;
     qint64 maxDuration = 0;
 
     for (int i = 0; i < lines.size(); ++i) {
         if (lines[i].startsWith("Program start time: ")) {
-            QDateTime startTime = QDateTime::fromString(lines[i].mid(19), "yyyy-MM-dd HH:mm:ss");
-            if (!firstStartTime.isValid() || startTime < firstStartTime) {
-                firstStartTime = startTime;
-                firstLaunch = lines[i];
-            }
-            lastStartTime = startTime;
-            lastLaunch = lines[i];
+            currentStartTime = QDateTime::fromString(lines[i].mid(19), "yyyy-MM-dd HH:mm:ss");
         } else if (lines[i].startsWith("Program end time: ")) {
-            QDateTime endTime = QDateTime::fromString(lines[i].mid(17), "yyyy-MM-dd HH:mm:ss");
-            qint64 duration = firstStartTime.msecsTo(endTime);
-            if (duration > maxDuration) {
-                maxDuration = duration;
-                longestStartTime = firstStartTime;
-                longestDuration = "Program start time: " + longestStartTime.toString("yyyy-MM-dd HH:mm:ss") + "\n" +
-                                  "Program end time: " + endTime.toString("yyyy-MM-dd HH:mm:ss") + "\n" +
-                                  "Duration: " + QTime::fromMSecsSinceStartOfDay(maxDuration).toString("HH:mm:ss");
+            currentEndTime = QDateTime::fromString(lines[i].mid(17), "yyyy-MM-dd HH:mm:ss");
+            if (currentStartTime.isValid()) {
+                qint64 duration = currentStartTime.msecsTo(currentEndTime);
+                if (duration > maxDuration) {
+                    maxDuration = duration;
+                }
             }
         }
     }
 
-    if (!lastLaunch.isEmpty()) {
-        lastLaunch += "\n" + lines.last();
+    // Read the previous longest duration
+    qint64 previousMaxDuration = 0;
+    QFile longestLaunchFile("longest_launch.txt");
+    if (longestLaunchFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&longestLaunchFile);
+        QString firstLine = in.readLine(); // Start time
+        QString secondLine = in.readLine(); // End time
+        QString thirdLine = in.readLine(); // Duration
+
+        if (!thirdLine.isEmpty()) {
+            QTime previousMaxDurationTime = QTime::fromString(thirdLine.mid(10), "HH:mm:ss");
+            previousMaxDuration = QTime(0, 0).msecsTo(previousMaxDurationTime);
+        }
+        longestLaunchFile.close();
     }
+
+    // Update the longest launch file if the current max duration is greater than the previous
+    if (maxDuration > previousMaxDuration) {
+        if (longestLaunchFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&longestLaunchFile);
+            out << "Program start time: " << currentStartTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
+            out << "Program end time: " << currentEndTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
+            out << "Duration: " << QTime::fromMSecsSinceStartOfDay(maxDuration).toString("HH:mm:ss") << "\n";
+        }
+    }
+}
+
+QString MainWindow::readFirstLaunch()
+{
+    QFile file("first_launch.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return "";
+
+    QTextStream in(&file);
+    return in.readAll();
+}
+
+QString MainWindow::readLastLaunch()
+{
+    QFile file("last_launch.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return "";
+
+    QTextStream in(&file);
+    return in.readAll();
+}
+
+QString MainWindow::readLongestLaunch()
+{
+    QFile file("longest_launch.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return "";
+
+    QTextStream in(&file);
+    return in.readAll();
 }
 
 
