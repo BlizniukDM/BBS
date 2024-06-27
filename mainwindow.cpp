@@ -18,21 +18,14 @@ MainWindow::MainWindow(QWidget *parent)
     button_color_change();
     Menu_connect();
 
-    logTime("Program started");
+    startTime = QDateTime::currentDateTime();
+    logTime("Program start time: ", startTime);
 }
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-void MainWindow::logTime(const QString& message) {
-    QFile file("log.txt");
-    if (file.open(QIODevice::Append | QIODevice::Text)) {
-        QTextStream out(&file);
-        out << message << ": " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
-        file.close();
-    }
-}
 
 void MainWindow::paintEvent(QPaintEvent *event)
 {
@@ -151,6 +144,7 @@ void MainWindow::button_color_change()
     ui->BoldPenButton->setStyleSheet("background-color: grey; color: black");\
     ui->DefaultPenButton->setStyleSheet("background-color: grey; color: black");
     ui->menubar->setStyleSheet("background-color: grey; color: black");
+    ui->Testbutton->setStyleSheet("background-color: grey; color: black");
 }
 
 
@@ -163,11 +157,40 @@ void MainWindow::Menu_connect()
 
 }
 
+void MainWindow::logTime(const QString &message, const QDateTime &time)
+{
+    QFile file("log.txt");
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << message << time.toString("yyyy-MM-dd HH:mm:ss") << "\n";
+    }
+}
+
 
 
 void MainWindow::on_Testbutton_clicked()
 {
-    logTime("Testbutton clicked");
-    QApplication::quit();
+    QDateTime endTime = QDateTime::currentDateTime();
+    logTime("Program end time: ", endTime);
+
+    qint64 duration = startTime.msecsTo(endTime);
+    QFile file("log.txt");
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << "Duration: " << QTime::fromMSecsSinceStartOfDay(duration).toString("HH:mm:ss") << "\n";
+    }
+
+    displayStatistics();
 }
 
+void MainWindow::displayStatistics()
+{
+    QFile file("log.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QTextStream in(&file);
+    QString logContent = in.readAll();
+
+    QMessageBox::information(this, tr("Statistics"), logContent);
+}

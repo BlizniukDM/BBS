@@ -30,7 +30,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void button_color_change();
     void Menu_connect();
-    void logTime(const QString& message);
+    void logTime(const QString &message, const QDateTime &time);
+    void displayStatistics();
 
 private slots:
     void on_ChangeColorButton_clicked();
@@ -57,6 +58,7 @@ private slots:
     void Help();
 
 
+
     void on_Testbutton_clicked();
 
 private:
@@ -66,6 +68,7 @@ private:
     QPoint lastPoint;
     bool drawing;
     QPen pen;
+    QDateTime startTime;
 };
 
 #endif // MAINWINDOW_H
