@@ -17,11 +17,21 @@ MainWindow::MainWindow(QWidget *parent)
     pen.setWidth(2);
     button_color_change();
     Menu_connect();
-}
 
+    logTime("Program started");
+}
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::logTime(const QString& message) {
+    QFile file("log.txt");
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << message << ": " << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "\n";
+        file.close();
+    }
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -154,4 +164,10 @@ void MainWindow::Menu_connect()
 }
 
 
+
+void MainWindow::on_Testbutton_clicked()
+{
+    logTime("Testbutton clicked");
+    QApplication::quit();
+}
 

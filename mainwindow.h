@@ -1,3 +1,4 @@
+/*После экскурсии в понедельник сбросить на почту zubovich2023 первую часть ознакомительного отчёта*/
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -7,6 +8,9 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPen>
+#include <QDateTime>
+#include <QFile>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,6 +30,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void button_color_change();
     void Menu_connect();
+    void logTime(const QString& message);
 
 private slots:
     void on_ChangeColorButton_clicked();
@@ -51,6 +56,8 @@ private slots:
 
     void Help();
 
+
+    void on_Testbutton_clicked();
 
 private:
     Ui::MainWindow *ui;
