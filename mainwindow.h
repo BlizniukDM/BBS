@@ -34,7 +34,6 @@ protected:
     void displayStatistics();
     void saveFirstLaunch();
     void saveLastLaunch();
-    void saveLongestLaunch();
 
 private slots:
     void on_ChangeColorButton_clicked();
@@ -74,7 +73,6 @@ private:
     QDateTime startTime;
     QString readFirstLaunch();
     QString readLastLaunch();
-    QString readLongestLaunch();
 };
 
 #endif // MAINWINDOW_H

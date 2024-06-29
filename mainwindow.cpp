@@ -182,10 +182,10 @@ void MainWindow::on_Testbutton_clicked()
     QFile file("log.txt");
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
+        out << "Program start time: " << startTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
+        out << "Program end time: " << endTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
         out << "Duration: " << QTime::fromMSecsSinceStartOfDay(duration).toString("HH:mm:ss") << "\n";
     }
-
-    saveLongestLaunch();
     displayStatistics();
 }
 
@@ -193,15 +193,12 @@ void MainWindow::displayStatistics()
 {
     QString firstLaunch = readFirstLaunch();
     QString lastLaunch = readLastLaunch();
-    QString longestLaunch = readLongestLaunch();
 
     QString statistics = QString("Statistics:\n\n"
-                                 "First Launch:\n%1\n\n"
-                                 "Last Launch:\n%2\n\n"
-                                 "Longest Duration:\n%3")
+                                 "Первый запуск:\n%1\n\n"
+                                 "Последний запуск:\n%2\n\n")
                              .arg(firstLaunch)
-                             .arg(lastLaunch)
-                             .arg(longestLaunch);
+                             .arg(lastLaunch);
 
     QMessageBox::information(this, tr("Statistics"), statistics);
     QApplication::quit();
@@ -225,60 +222,6 @@ void MainWindow::saveLastLaunch()
     }
 }
 
-void MainWindow::saveLongestLaunch()
-{
-    QFile file("log.txt");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    QTextStream in(&file);
-    QString logContent = in.readAll();
-    file.close();
-
-    QStringList lines = logContent.split('\n');
-    QDateTime currentStartTime, currentEndTime;
-    qint64 maxDuration = 0;
-
-    for (int i = 0; i < lines.size(); ++i) {
-        if (lines[i].startsWith("Program start time: ")) {
-            currentStartTime = QDateTime::fromString(lines[i].mid(19), "yyyy-MM-dd HH:mm:ss");
-        } else if (lines[i].startsWith("Program end time: ")) {
-            currentEndTime = QDateTime::fromString(lines[i].mid(17), "yyyy-MM-dd HH:mm:ss");
-            if (currentStartTime.isValid()) {
-                qint64 duration = currentStartTime.msecsTo(currentEndTime);
-                if (duration > maxDuration) {
-                    maxDuration = duration;
-                }
-            }
-        }
-    }
-
-    // Read the previous longest duration
-    qint64 previousMaxDuration = 0;
-    QFile longestLaunchFile("longest_launch.txt");
-    if (longestLaunchFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&longestLaunchFile);
-        QString firstLine = in.readLine(); // Start time
-        QString secondLine = in.readLine(); // End time
-        QString thirdLine = in.readLine(); // Duration
-
-        if (!thirdLine.isEmpty()) {
-            QTime previousMaxDurationTime = QTime::fromString(thirdLine.mid(10), "HH:mm:ss");
-            previousMaxDuration = QTime(0, 0).msecsTo(previousMaxDurationTime);
-        }
-        longestLaunchFile.close();
-    }
-
-    // Update the longest launch file if the current max duration is greater than the previous
-    if (maxDuration > previousMaxDuration) {
-        if (longestLaunchFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream out(&longestLaunchFile);
-            out << "Program start time: " << currentStartTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
-            out << "Program end time: " << currentEndTime.toString("yyyy-MM-dd HH:mm:ss") << "\n";
-            out << "Duration: " << QTime::fromMSecsSinceStartOfDay(maxDuration).toString("HH:mm:ss") << "\n";
-        }
-    }
-}
 
 QString MainWindow::readFirstLaunch()
 {
@@ -300,15 +243,6 @@ QString MainWindow::readLastLaunch()
     return in.readAll();
 }
 
-QString MainWindow::readLongestLaunch()
-{
-    QFile file("longest_launch.txt");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return "";
-
-    QTextStream in(&file);
-    return in.readAll();
-}
 
 
 
