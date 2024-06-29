@@ -1,6 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <vector>
+#include <string>
+#include <cstring>
+#include <QString>
+#include <sstream>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -10,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     image = QImage(1500, 1500, QImage::Format_ARGB32);
     image.fill(Qt::white);
+
 
     drawing = false;
 
@@ -57,34 +64,33 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::on_ChangeColorButton_clicked()
+void MainWindow::Black()
 {
     pen.setColor(Qt::black);
-
 }
 
-void MainWindow::on_ChangeColorButton_2_clicked()
+void MainWindow::Blue()
 {
     pen.setColor(Qt::blue);
 }
 
-void MainWindow::on_ChangeColorButton_3_clicked()
+void MainWindow::Green()
 {
     pen.setColor(Qt::green);
 }
 
-void MainWindow::on_ChangeColorButton_4_clicked()
+void MainWindow::Red()
 {
     pen.setColor(Qt::red);
 }
 
-void MainWindow::on_DefaultPenButton_clicked()
+void MainWindow::DefaultPen()
 {
     pen.setWidth(2);
 }
 
 
-void MainWindow::on_BoldPenButton_clicked()
+void MainWindow::BoldPen()
 {
     pen.setWidth(4);
 }
@@ -139,17 +145,23 @@ void MainWindow::Help()
                                 "Кнопки RED, BLUE, GREEN, BLACK - Кнопки изменения цвета"));
 }
 
+void MainWindow::Data()
+{
+    image.fill(Qt::white);
+    DateTimeWidget *datetimewidget = new DateTimeWidget(this);
+    //textEdit->show();
+    datetimewidget->show();
+    datetimewidget->setFixedWidth(400);
+    datetimewidget->setFixedHeight(400);
+    datetimewidget->move(300, 100);
+    datetimewidget->setVisible(true);
+}
+
 
 void MainWindow::button_color_change()
 {
-    ui->ChangeColorButton->setStyleSheet("background-color: grey; color: black");
-    ui->ChangeColorButton_2->setStyleSheet("background-color: grey; color: black");
-    ui->ChangeColorButton_3->setStyleSheet("background-color: grey; color: black");
-    ui->ChangeColorButton_4->setStyleSheet("background-color: grey; color: black");
-    ui->BoldPenButton->setStyleSheet("background-color: grey; color: black");\
-    ui->DefaultPenButton->setStyleSheet("background-color: grey; color: black");
     ui->menubar->setStyleSheet("background-color: grey; color: black");
-    ui->Testbutton->setStyleSheet("background-color: grey; color: black");
+    ui->menuEND_Test->setStyleSheet("background-color: grey; color: black");
 }
 
 
@@ -159,6 +171,14 @@ void MainWindow::Menu_connect()
     connect(ui->actionHELP,&QAction::triggered, this, &MainWindow::Help);
     connect(ui->actionSAVE_2,&QAction::triggered, this, &MainWindow::Save);
     connect(ui->actionLOAD_2,&QAction::triggered, this, &MainWindow::Load);
+    connect(ui->actionDATA,&QAction::triggered, this, &MainWindow::Data);
+    connect(ui->actionBLACK,&QAction::triggered, this, &MainWindow::Black);
+    connect(ui->actionBLUE,&QAction::triggered, this, &MainWindow::Blue);
+    connect(ui->actionRED,&QAction::triggered, this, &MainWindow::Red);
+    connect(ui->actionGREEN,&QAction::triggered, this, &MainWindow::Green);
+    connect(ui->actionBOLD_PEN,&QAction::triggered, this, &MainWindow::BoldPen);
+    connect(ui->actionDEFAULT_PEN,&QAction::triggered, this, &MainWindow::DefaultPen);
+    connect(ui->actionEndBar,&QAction::triggered, this, &MainWindow::EndTest);
 
 }
 
@@ -173,7 +193,7 @@ void MainWindow::logTime(const QString &message, const QDateTime &time)
 
 
 
-void MainWindow::on_Testbutton_clicked()
+void MainWindow::EndTest()
 {
     QDateTime endTime = QDateTime::currentDateTime();
     logTime("Program end time: ", endTime);

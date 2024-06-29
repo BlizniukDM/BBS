@@ -2,6 +2,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "dateTimeWidget.h"
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QPainter>
@@ -36,20 +37,17 @@ protected:
     void saveLastLaunch();
 
 private slots:
-    void on_ChangeColorButton_clicked();
+    void Black();
 
-    void on_ChangeColorButton_2_clicked();
+    void Blue();
 
-    void on_ChangeColorButton_3_clicked();
+    void Green();
 
-    void on_ChangeColorButton_4_clicked();
+    void Red();
 
-    void on_DefaultPenButton_clicked();
+    void DefaultPen();
 
-    void on_BoldPenButton_clicked();
-
-
-
+    void BoldPen();
 
     void Save();
 
@@ -59,9 +57,9 @@ private slots:
 
     void Help();
 
+    void Data();
 
-
-    void on_Testbutton_clicked();
+    void EndTest();
 
 private:
     Ui::MainWindow *ui;
